@@ -1,7 +1,5 @@
 #include <stdlib.h>
 
-#define SIZE 4096
-
 double a[SIZE][SIZE], b[SIZE][SIZE], c[SIZE][SIZE];
 
 int main()
