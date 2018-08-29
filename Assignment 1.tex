@@ -1,0 +1,61 @@
+\documentclass[11pt,a4paper,oneside]{article}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage {tikz}
+\usetikzlibrary {er}
+\usepackage[left=2.00cm, right=2.00cm, top=1.00cm]{geometry}
+
+\begin{document}
+	\title{DS 221 - Introduction to Scalable Systems \\ Homework 1 Solutions}
+	\author{Shriram R. \\ M Tech (CDS) \\ 06-02-01-10-51-18-1-15763}
+	\maketitle
+	\begin{enumerate}{}{}
+		\item The file sizes of a.out for the Hello World program along with instruction count for different compiler optimization flags are tabulated below. gcc v7.3 on x86-64 linux was used for compilation. Instruction count was obtained using the objdump tool.
+		\begin{center}
+			\begin{tabular}{|l|l|l|l|}
+				\hline
+				Optimization & Description & File Size &  Instruction Count\\
+				\hline
+				O0 & Default & 8296 B & 292 \\
+				O1 & Level 1 & 8296 B & 286 \\
+				O2 & Level 2 & 8296 B & 286 \\
+				O3 & Level 3 & 8296 B & 286 \\				
+				\hline
+			\end{tabular}
+		\end{center}
+		\item (2.62) The C program is given below,
+		\begin{verbatim}
+		int shifts_are_arithmetic() {
+		 int a = -1; // Initialize with all bits set to 1		 
+		 if(a >> 1 == -1) // For arithmetic right shift, sign bit remains constant
+		  return 1;
+		 else
+		  return 0;
+		}
+		\end{verbatim}
+		\item (2.68) The C program is given below,
+		\begin{verbatim}
+		int lower_one_mask(int n) {
+		 int a = -1; // Initialize with all bits set to 1		 
+		 // Shift happens in two steps to handle the case n = word size.
+		 a = a << n-1;
+		 a = a << 1;		 
+		 return a ^ -1; // Complement by xoring with -1
+		}
+		\end{verbatim}	
+		\item (2.70) The C program is given below,
+		\begin{verbatim}
+			int fits_bits(int x, int n) {
+			 x = x >> n-1; // Arithmetic right shift is assumed here			 
+			 // x should be 0 (all bits set to 0) or
+			 // x should be -1 (all bits set to 1)			 
+			 return x == 0 || x == -1;		
+			}
+		\end{verbatim}	
+	\end{enumerate}
+	
+\end{document}

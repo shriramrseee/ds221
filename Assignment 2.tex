@@ -1,0 +1,77 @@
+\documentclass[11pt,a4paper,oneside]{article}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage {tikz}
+\usetikzlibrary {er}
+\usepackage{multicol}
+\newcommand \tab[1][1cm]{\hspace*{#1}}
+\setlength{\columnseprule}{0.4pt}
+\usepackage[left=2.00cm, right=2.00cm, top=1.00cm]{geometry}
+
+\begin{document}
+	\title{DS 221 - Introduction to Scalable Systems \\ Homework 2 Solutions}
+	\author{Shriram R. \\ M Tech (CDS) \\ 06-02-01-10-51-18-1-15763}
+	\maketitle
+	\begin{enumerate}{}{}
+		\item (2.82) A) The formula can be derived by shifting the value by $k$ bits as follows, \\
+		      \begin{equation}
+		      K = 0.yyy...
+		      \end{equation}
+		      \begin{equation}
+	          2^k K = y.yyy...
+	          \end{equation}
+	          \tab Subtracting (1) from (2) and rearranging terms we get, \\
+	          \begin{equation}
+	          K = \frac{y}{2^k-1}
+	          \end{equation}
+	          \newline
+	         (2.82) B) The numeric value of the given strings are: \\
+	         \tab a) 101 --- $ y = 101, k=3, K = \frac{5}{7}$ (5 by 7) \\
+	         \tab b) 0110 --- $y = 0110, k = 4, K = \frac{6}{15}$ (6 by 15)\\
+	         \tab c) 010011 --- $y = 010011, k = 6, K = \frac{19}{63}$ (19 by 63)\\           
+		\begin{multicols}{2}
+		\item (2.89) The C program is given below,
+		\begin{verbatim}
+	    float fpwr2(int x)
+	    {
+	      unsigned exp, frac;
+	      unsigned u;
+	      
+	      if (x < -149) {
+	         exp = 0;
+	         frac = 0;
+	      } else if (x < -126) {
+	         exp = 0;
+	         frac = 1 << (149+x);
+	      } else if (x < 128) {
+	         exp = x + 127;
+	         frac = 0;
+	      } else {
+	         exp = 255;
+	         frac = 0;
+	      }
+	      u = exp << 23 | frac;
+	      return u2f(u);
+	    }
+		\end{verbatim}
+		\columnbreak
+		\item (2.90) A) The given 0x40490FDB value can be represented in binary as a IEEE 32 bit floating point value as follows, \\
+		      \tab \tab $ s = 0 $ \\
+		      \tab \tab $ e = 10000000_2 = 1\textsubscript{2} $ (w/o bias) \\
+		      \tab \tab $ f = 10010010000111111011011_2 $ \\
+		      Hence, binary value = $ 11.0010010000111111011011_2 $ \\ \\ \\
+		      (2.90) B) The number $\frac{22}{7}$ can be represented in binary as follows, \\
+		      \tab \tab $ \frac{22}{7} = 3\frac{1}{7} = 11_2 + U2B(\frac{1}{7})$ \\
+		      Using the formula derived in (2.82), we see that $y=001$ and $k=3$ for $\frac{1}{7}$. Therefore, \\
+		      \tab \tab $ \frac{22}{7} = 11.001001001..._2 $ \\ \\ \\
+		      (2.90) C) The first and second approximation diverges from the $9$th bit position to the right of binary point.
+		       
+		
+	\end{multicols}		
+	\end{enumerate}
+	
+\end{document}
