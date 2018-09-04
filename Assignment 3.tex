@@ -1,0 +1,54 @@
+\documentclass[11pt,a4paper,oneside]{article}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage {tikz}
+\usetikzlibrary {er}
+\usepackage[left=2.00cm, right=2.00cm, top=2.00cm]{geometry}
+
+\begin{document}
+	\title{DS 221 - Introduction to Scalable Systems \\ Assignment 1}
+	\author{Shriram R. \\ M Tech (CDS) \\ 06-02-01-10-51-18-1-15763}
+	\maketitle
+	
+	\section{Introduction}
+	An efficient C program to multiply two square matrices has been developed by leveraging vectorization and locality of reference. The program has been tested for different matrix sizes and a comparison has been made with a naive implementation. The following sections will cover the program, analysis and performance results in detail.
+	
+	\section{Program}
+	\begin{verbatim}
+	#include <stdlib.h>
+	
+	double a[SIZE][SIZE], b[SIZE][SIZE], c[SIZE][SIZE]; // SIZE is set during compile
+	
+	int main()
+	{
+	    for(int i=0; i<SIZE; i++) {
+	        for(int j=0; j<SIZE; j++) {
+	            a[i][j]=rand(); // Initialize with a random integer
+	            b[i][j]=rand(); // Initialize with a random integer
+	            c[i][j]=0;      // Initialize result matrix with 0
+	        }
+	    }
+	
+	    for(int i=0; i<SIZE; i++) {
+	        for(int j=0; j<SIZE; j++) {
+            for(int k=0; k<SIZE; k++) {
+                c[i][k] += a[i][j]*b[j][k];
+            }
+        }
+    }
+        	
+	    return 0;
+	}
+	\end{verbatim}
+	
+    \section{Analysis}
+    The key idea behind the program is that each row in the result matrix C can be interpretated as a linear combination of the rows in matrix B using the values in rows of matrix A as weights.
+    
+    \section{Performance}
+    The program has been tested in a personal computer having Intel Core i5 processor with 6MB cache and 4GB RAM.
+
+\end{document}
