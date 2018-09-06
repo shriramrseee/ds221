@@ -1,10 +1,16 @@
 #include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 
 double a[SIZE][SIZE], b[SIZE][SIZE], c[SIZE][SIZE];
 
 int main()
 {
-	for(int i=0; i<SIZE; i++)
+	
+	struct timespec start, end;
+        srand(time(NULL));
+
+        for(int i=0; i<SIZE; i++)
 	{
 		for(int j=0; j<SIZE; j++)
 		{
@@ -13,6 +19,8 @@ int main()
 			c[i][j]=0;
 		}
 	}
+
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
 
 	for(int i=0; i<SIZE; i++)
 	{
@@ -24,6 +32,10 @@ int main()
 			}
 		}
 	}
+
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+
+        printf ("%f s\n", (end.tv_nsec-start.tv_nsec)/1000000000.0 + (end.tv_sec-start.tv_sec));
 
 	return 0;
 }
