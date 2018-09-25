@@ -4,101 +4,172 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iomanip>
+#include <fstream>
+#include <ctime>
 #include"MatrixImpl.cpp"
 
 using namespace std;
 
-
-/**
-  * Runner code that serves as harness for invoking various functions required 
-  * to be implemented for this assignment.
-  * You may modify this code, but need to retain the input parameter signature and 
-  * output requirements specified in the assignment.
-  */  
-  
-/////////////////////////////////////////////////////////////////////////////
-
 IMatrix* load_arr(char* input_file) 
 {
-	// TODO: Code for loading matrix from input_file into array impl and returning object
+    ifstream input;
+    IMatrix* mat = new ArrayMatrix;
+    int N, M;
+
+    input.open(input_file);
+    if(!input.is_open())
+    {
+     throw invalid_argument(string("Input file does not exist!"));
+    }
+
+    input>>N>>M;
+    mat->init(N, M);
+    float* row = new float[M];
+    for(int i=0; i<N; i++) {
+	for(int j=0; j<M; j++) {
+	    input>>row[j];
+	}
+	mat->append(row);
+    }
+
+    input.close();    
+    return mat;
 
 }
 
 IMatrix* load_csr(char* input_file) 
 {
-	// TODO: Code for loading matrix from input_file into CSR impl and returning object
+    ifstream input;
+    IMatrix* mat = new CSRMatrix;
+    int N, M;
 
+    input.open(input_file);
+    if(!input.is_open())
+    {
+     throw invalid_argument(string("Input file does not exist!"));
+    }
+
+    input>>N>>M;
+    mat->init(N, M);
+    float* row = new float[M];
+
+    for(int i=0; i<N; i++) {
+	for(int j=0; j<M; j++) {
+	    input>>row[j];
+	}
+	mat->append(row);
+    }
+    
+    input.close();
+    return mat;
 }
 
 IMatrix* init_arr(int rows, int cols) 
 {
-	// TODO: Code for initializing an empty matrix using array impl with rows and cols as 
-	// dimensions, and returning the object
+    IMatrix* mat = new ArrayMatrix;
+    mat->init(rows, cols);
+    return mat;
 }
 
 
 IMatrix* init_csr(int rows, int cols) 
 {
-	// TODO: Code for initializing an empty matrix using CSR impl with rows and cols as 
-	// dimensions, and returning the object
+    IMatrix* mat = new CSRMatrix;
+    mat->init(rows, cols);
+    return mat;
 }
 
 
 void print_mat(IMatrix* mat, char* output_file) 
 {
-	// TODO: print matrix as TSV to otput_file
-}
+    ofstream output;
+    int rows, cols;
+    rows = mat->row_count();
+    cols = mat->col_count();
 
-/////////////////////////////////////////////////////////////////////////////
+    output.open(output_file);
+
+    output<<rows<<"\t"<<cols<<"\t\n";
+    for(int i=0; i<rows; i++)
+    {
+         for(int j=0; j<cols; j++)
+         {
+             output<<setprecision(3)<<mat->get(i, j)<<"\t";
+         }
+         output<<"\n";
+    }
+
+    output.close();    
+}
 
 void load(char* mat_type, char* input_file, char* output_file)
 {
-	// TODO: any other validation?
 	
-	IMatrix* mat1;
+    IMatrix* mat1;
+    struct timespec start, end;
 
-	if (strcmp("array", mat_type)==0) // TODO: time this region and print "load,array,output_file,time_millisec"
+    if (strcmp("array", mat_type)==0) 
     { 
-		mat1 = load_arr(input_file);
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+        mat1 = load_arr(input_file);
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
     }  
-	else if (strcmp("csr", mat_type)==0) // TODO: time this region and print "load,csr,output_file,time_millisec"
-	{  
-		mat1 = load_csr(input_file);
-	}
-	else
-		cout<<"[load] invalid matrix type input seen: "<<mat_type<<endl;
+    else if (strcmp("csr", mat_type)==0)
+    {  
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+        mat1 = load_csr(input_file);
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+    }
+    else
+	cout<<"[load] invalid matrix type input seen: "<<mat_type<<endl;
 
-	// store the loaded matrix mat1 in output file given by output_file
-	print_mat(mat1, output_file);
-	
+    print_mat(mat1, output_file);
 
-	return;
+    cout<<"load,"<<mat_type<<","<<output_file<<","<<(end.tv_nsec-start.tv_nsec)/1000000.0 + (end.tv_sec-start.tv_sec)*1000<<"\n";
+    return;
 }
 
-/////////////////////////////////////////////////////////////////////////////
+
+void add_mat(IMatrix* mat1, IMatrix* mat2, IMatrix* mat3) 
+{	
+    int rows, cols;
+    rows = mat1->row_count();
+    cols = mat1->col_count();
+    float* row = new float[cols];
+    for(int i=0; i<rows; i++) {
+	for(int j=0; j<cols; j++) {
+	    row[j] = mat1->get(i, j) + mat2->get(i, j);
+	}
+	mat3->append(row);
+    }
+}
+
 
 void add(char* mat_type, char* input_file1, char* input_file2, char* output_file)
 { 
-	// TODO: any other validation?
-	
-	IMatrix* mat1, mat2, mat3;
+	IMatrix* mat1;
+        IMatrix* mat2;
+        IMatrix* mat3;
+	struct timespec start, end;
 	
 	if (strcmp("array", mat_type)==0) 
-    { 
+        { 
 		mat1 = load_arr(input_file1);
 		mat2 = load_arr(input_file2);
-		
-		// TODO: any other validation?
-		
+                if(mat1->row_count() != mat2->row_count() || mat1->col_count() != mat2->col_count())
+                {
+                  throw logic_error(string("Cannot add two matrices of different dimensions!"));
+                }		
 		mat3 = init_arr(mat1->row_count(), mat1->col_count());
-    }  
+        }  
 	else if (strcmp("csr", mat_type)==0)
 	{
 		mat1 = load_csr(input_file1);
 		mat2 = load_csr(input_file2);
-
-		// TODO: any other validation?
-		
+                if(mat1->row_count() != mat2->row_count() || mat1->col_count() != mat2->col_count())
+                {
+                  throw logic_error(string("Cannot add two matrices of different dimensions!"));
+                }		
 		mat3 = init_csr(mat1->row_count(), mat1->col_count());
 	}
 	else {
@@ -106,73 +177,87 @@ void add(char* mat_type, char* input_file1, char* input_file2, char* output_file
 		return;
 	}
 	
-	// TODO: time this method and print "add,mat_type,output_file,time_millisec"
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+        add_mat(mat1, mat2, mat3);
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
 	
-	add(mat1, mat2, mat3);
-	
-	// store output matrix mat3 in file given by output_file
 	print_mat(mat3, output_file);
+        cout<<"add,"<<mat_type<<","<<output_file<<","<<(end.tv_nsec-start.tv_nsec)/1000000.0 + (end.tv_sec-start.tv_sec)*1000<<"\n";
 
 	return;
 }
 
-void add(IMatrix* mat1, IMatrix* mat2, IMatrix* mat3) 
+
+void multiply_mat(IMatrix* mat1, IMatrix* mat2, IMatrix* mat3) 
 {	
-	// TODO: Code for adding the mat1 and mat2 and storing in a third matrix mat3
-	
-	return;
+    int rows1, cols, rows2;
+    rows1 = mat1->row_count();
+    cols = mat1->col_count();
+    rows2 = mat2->col_count();
+
+    float* row = new float[rows2];
+
+    for(int i=0; i<rows1; i++) {
+        for(int l=0; l<rows2; l++) {
+          row[l] = 0;
+        }
+	for(int j=0; j<cols; j++) {
+          for(int k=0; k<rows2; k++) {
+	    row[k] += mat1->get(i, j)*mat2->get(j, k);
+	  }
+        }
+	mat3->append(row);
+    }
 }
 
-/////////////////////////////////////////////////////////////////////////////
+
 
 void multiply(char* mat_type, char* input_file1, char* input_file2, char* output_file)
 {
-	// TODO: any other validation?
-
-	IMatrix* mat1, mat2, mat3;
+	IMatrix* mat1;
+        IMatrix* mat2;
+        IMatrix* mat3;
+        struct timespec start, end;
 
 	if (strcmp("array", mat_type)==0) 
-    { 
+        { 
 		mat1 = load_arr(input_file1);
 		mat2 = load_arr(input_file2);
-
-		// TODO: any other validation?
+                if(mat1->col_count() != mat2->row_count())
+                {
+                  throw logic_error(string("Input matrices are incompatible for multiplication!"));
+                }
+		mat3 = init_arr(mat1->row_count(), mat2->col_count());
 		
-		// TODO: init output matrix mat3 with arr impl
 	}  
 	else if (strcmp("csr", mat_type)==0)
 	{
 		mat1 = load_csr(input_file1);
 		mat2 = load_csr(input_file2);
-
-		// TODO: any other validation?
+                if(mat1->col_count() != mat2->row_count())
+                {
+                  throw logic_error(string("Input matrices are incompatible for multiplication!"));
+                }
+		mat3 = init_csr(mat1->row_count(), mat2->col_count());
 		
-		// TODO: init output matrix mat3 with csr impl
 	}
 	else {
 		cout<<"[multiply] invalid matrix type input seen: "<<mat_type<<endl;
 		return;
 	}
 	
-	// TODO: time this method and print "multiply,csr,output_file,time_millisec"
-	multiply(mat1, mat2, mat3);
-	
-	// store output matrix mat3 in file given by output_file
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+	multiply_mat(mat1, mat2, mat3);
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+
 	print_mat(mat3, output_file);
+        cout<<"multiply,"<<mat_type<<","<<output_file<<","<<(end.tv_nsec-start.tv_nsec)/1000000.0 + (end.tv_sec-start.tv_sec)*1000<<"\n";
 
 	return;
 }
 
-void multiply(IMatrix* mat1, IMatrix* mat2, IMatrix* mat3) 
-{	
-	
-	// TODO: Code for adding the mat1 and mat2 and storing in a third matrix mat3
-	
-	return;
-}
-/////////////////////////////////////////////////////////////////////////////
 
-void bfs(char* input_file, char* root_id, int char* output_file)
+void bfs(char* input_file, char* root_id, char* output_file)
 {
  
 	// TODO: any validation?
@@ -181,7 +266,7 @@ void bfs(char* input_file, char* root_id, int char* output_file)
 	// TODO: Define a List ADT traverse_list to store output.
 
 	// TODO
-	mat1 = load_csr(input_file1);
+	mat1 = load_csr(input_file);
 
 	{	
 		// TODO: time this region and print "bfs,csr,output_file,time_millisec"
@@ -196,31 +281,31 @@ void bfs(char* input_file, char* root_id, int char* output_file)
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
+
 
 int main(int n, char *argv[])
 {
 
-	if(strcmp("load", argv[1])==0)
-	{
-		load(argv[2], argv[3], argv[4]);
-	}
+    if(strcmp("load", argv[1])==0)
+    {
+	load(argv[2], argv[3], argv[4]);
+    }
     else if( strcmp("add", argv[1])==0)
-	{
-		add(argv[2], argv[3], argv[4], argv[5]);
-	}
+    {
+	add(argv[2], argv[3], argv[4], argv[5]);
+    }
     else if( strcmp("multiply", argv[1])==0 )
-	{
-        multiply(argv[2], argv[2], argv[4], argv[5]);
-	}
+    {
+        multiply(argv[2], argv[3], argv[4], argv[5]);
+    }
     else if(strcmp("bfs", argv[1])==0)
-	{
+    {
         bfs(argv[2], argv[3], argv[4]);
-	} else 
-		cout<<"[main] invalid input parameters. Valid usage is..."<<endl;
+    }
+    else 
+        cout<<"[main] invalid input parameters. Valid usage is..."<<endl;
 
-	return 0;
+    return 0;
     
 }
 
