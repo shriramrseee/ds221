@@ -13,8 +13,8 @@ int main()
 	{
 		for(int j=0; j<SIZE; j++)
 		{
-			a[i][j]=rand();
-			b[i][j]=rand();
+			a[i][j]= (double) rand();
+			b[i][j]= (double) rand();
 			c[i][j]=0;
 		}
 	}
