@@ -119,8 +119,7 @@ void load(char *mat_type, char *input_file, char *output_file) {
 
     print_mat(mat1, output_file);
     // Print time taken in milliseconds to stdout
-    cout << "load," << mat_type << "," << output_file << ","
-         << (end.tv_nsec - start.tv_nsec) / 1000000.0 + (end.tv_sec - start.tv_sec) * 1000 << "\n";
+    cout << (end.tv_nsec - start.tv_nsec) / 1000000.0 + (end.tv_sec - start.tv_sec) * 1000 << "\n";
     return;
 }
 
@@ -173,8 +172,7 @@ void add(char *mat_type, char *input_file1, char *input_file2, char *output_file
 
     print_mat(mat3, output_file);
     // Print time taken in milliseconds to stdout
-    cout << "add," << mat_type << "," << output_file << ","
-         << (end.tv_nsec - start.tv_nsec) / 1000000.0 + (end.tv_sec - start.tv_sec) * 1000 << "\n";
+    cout << (end.tv_nsec - start.tv_nsec) / 1000000.0 + (end.tv_sec - start.tv_sec) * 1000 << "\n";
 
     return;
 }
@@ -236,8 +234,7 @@ void multiply(char *mat_type, char *input_file1, char *input_file2, char *output
 
     print_mat(mat3, output_file);
     // Print time taken in milliseconds to stdout
-    cout << "multiply," << mat_type << "," << output_file << ","
-         << (end.tv_nsec - start.tv_nsec) / 1000000.0 + (end.tv_sec - start.tv_sec) * 1000 << "\n";
+    cout << (end.tv_nsec - start.tv_nsec) / 1000000.0 + (end.tv_sec - start.tv_sec) * 1000 << "\n";
 
     return;
 }
