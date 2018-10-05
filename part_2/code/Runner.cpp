@@ -13,6 +13,7 @@
 #include <ctime>
 #include <list>
 #include <queue>
+#include <sstream>
 #include"MatrixImpl.cpp"
 
 using namespace std;
@@ -34,16 +35,16 @@ IMatrix *load_arr(char *input_file) {
         getline(input, line);
         s.str(line);
         s >> t;
-        N = stoi(t);
+        N = stoi(t); // Get no. of rows
         t = "";
         s >> t;
-        M = stoi(t);
+        M = stoi(t); // Get no. of columns
         mat->init(N, M);
         float *row = new float[M];
         for (int i = 0; i < N; i++) {
             getline(input, line);
             stringstream s(line);
-            for (int j = 0; j < M; j++) {
+            for (int j = 0; j < M; j++) { // Scan each row from file
                 t = "";
                 s >> t;
                 row[j] = stof(t);
@@ -76,16 +77,16 @@ IMatrix *load_csr(char *input_file) {
         getline(input, line);
         s.str(line);
         s >> t;
-        N = stoi(t);
+        N = stoi(t); // Get no. of rows
         t = "";
         s >> t;
-        M = stoi(t);
+        M = stoi(t); // Get no. of columns
         mat->init(N, M);
         float *row = new float[M];
         for (int i = 0; i < N; i++) {
             getline(input, line);
             stringstream s(line);
-            for (int j = 0; j < M; j++) {
+            for (int j = 0; j < M; j++) { // Scan each row from file
                 t = "";
                 s >> t;
                 row[j] = stof(t);
@@ -162,7 +163,7 @@ void load(char *mat_type, char *input_file, char *output_file) {
 }
 
 // Adds two matrices and stores the result in a result matrix
-void add_mat(IMatrix *mat1, IMatrix *mat2, IMatrix *mat3) {
+void add(IMatrix *mat1, IMatrix *mat2, IMatrix *mat3) {
     int rows, cols;
     rows = mat1->row_count();
     cols = mat1->col_count();
@@ -205,7 +206,7 @@ void add(char *mat_type, char *input_file1, char *input_file2, char *output_file
     }
 
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start); // Start timer
-    add_mat(mat1, mat2, mat3);
+    add(mat1, mat2, mat3);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end); // End timer
 
     print_mat(mat3, output_file);
@@ -216,7 +217,7 @@ void add(char *mat_type, char *input_file1, char *input_file2, char *output_file
 }
 
 // Multiplies two matrices and stores the result in a result matrix
-void multiply_mat(IMatrix *mat1, IMatrix *mat2, IMatrix *mat3) {
+void multiply(IMatrix *mat1, IMatrix *mat2, IMatrix *mat3) {
     int rows1, cols, rows2;
     rows1 = mat1->row_count();
     cols = mat1->col_count();
@@ -267,7 +268,7 @@ void multiply(char *mat_type, char *input_file1, char *input_file2, char *output
     }
 
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start); // Start timer
-    multiply_mat(mat1, mat2, mat3);
+    multiply(mat1, mat2, mat3);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end); // End timer
 
     print_mat(mat3, output_file);
@@ -303,26 +304,26 @@ void bfs(char *input_file, char *root_id, char *output_file) {
 
     mat1 = load_csr(input_file);
     nodes = mat1->col_count();
-    int* mat2 = new int[nodes];
+    int* mat2 = new int[nodes]; // Stores the depth of each node
     root=atoi(root_id);
 
-    for(int i=0; i<nodes; i++)
+    for(int i=0; i<nodes; i++) // Initial depth is -1
         mat2[i]=-1;
 
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start); // Start timer
-    q.push(root);
-    mat2[root]=0;
-    while(!q.empty()) {
-      item = q.front();
+    q.push(root); // Add root to the queue
+    mat2[root]=0; // depth of root is zero
+    while(!q.empty()) { // Queue is empty if we complete search of entire connected component
+      item = q.front(); // Get the front element from the queue
       q.pop();
-      if(traverse_list.size() < mat2[item]+1) {
+      if(traverse_list.size() < mat2[item]+1) { // Add a new depth to traverse list if not present already
           tl *new_depth = new tl(mat2[item]);
           traverse_list.push_back(*new_depth);
       }
-      traverse_list.back().vid.push_back(item);
+      traverse_list.back().vid.push_back(item); // Add the node to the traverse list
       for(int i=0; i<nodes; i++) {
-          if(mat1->get(item, i) && mat2[i] == -1) {
-              mat2[i] = mat2[item]+1;
+          if(mat1->get(item, i) && mat2[i] == -1) { // Add a adjacent node to the queue if not visited already
+              mat2[i] = mat2[item]+1; // Set the depth of adjacent node to current+1
               q.push(i);
           }
       }
@@ -336,7 +337,7 @@ void bfs(char *input_file, char *root_id, char *output_file) {
     // Write the data to the file
     for (list<tl>::iterator i = traverse_list.begin(); i != traverse_list.end(); i++) {
         output << i->depth;
-        i->vid.sort();
+        i->vid.sort(); // Sort in ascending order
         for (list<int>::iterator j = i->vid.begin(); j != i->vid.end(); j++) {
             output << "," << *j;
         }
