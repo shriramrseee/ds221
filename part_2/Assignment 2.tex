@@ -20,11 +20,11 @@
 	The following sections will cover the analysis and empirical results in detail.
 	
 	\subsection{Storage Space}
-	Let N, M and NNZ denote the number of rows, columns and non-zero elements of the matrix respectively. This notation will be used for the remainder of the report. For 2D array implementation, space is allocated to each element irrespective of the value and so the asymptotic space complexity is O(NM). \\
+	Let N, M and NNZ denote the number of rows, columns and non-zero elements of the matrix respectively. This notation is adopted for the remainder of this report. For 2D array implementation, space gets allocated to each element irrespective of its value and so the asymptotic space complexity is O(NM) (independent of NNZ). \\
 	\newline
-	For CSR implementation, we have three 1D arrays namely A for storing matrix values, IA for storing the cumulative sum of non-zero values for each row and JA for string the column index for each non-zero value. These array have NNZ, N+1 and NNZ elements respectively. Hence, the asymptotic space complexity is O(N + 2NNZ)  \\
+	For CSR implementation, we have three 1D arrays namely A for storing matrix values, IA for storing the cumulative number of non-zero values for each row and JA for storing the column index for each non-zero value. These arrays have NNZ, N+1 and NNZ elements respectively. Hence, the asymptotic space complexity is O(N + 2NNZ). In the worst case where NNZ = NM (all elements are non zero), CSR will take more space as its space complexity goes to O(N + 2NM). \\
 	\newline
-	The space complexities has been empirically determined for various matrix sizes and sparsities and the results are provided below. Square matrices (N=M) were used for simplicity of analysis,
+	The space complexities has been empirically determined for different matrix sizes and the results plotted below match with the analysis. Square matrices (N=M) were used for simplicity of analysis.
 	
 	\begin{center}
 		\includegraphics[scale=0.6]{1.png}		
@@ -34,14 +34,14 @@
 		\includegraphics[scale=0.6]{2.png}		
 	\end{center}
 
+    For CSR, the sparse percentage denotes the percentage of elements that are zero in the matrix.
+
     \subsection{Matrix Addition}
-    For matrix addition, all the elements of the input and output matrices have to be processed exactly once and there are NM elements in each matrix. \\
+    For matrix addition, all the elements of both input and output matrices have to be processed exactly once and there are NM elements in each matrix. In the case of 2D array implementation, each element can be accessed in O(1) time and so the total time complexity for addition in this case is O(NM). Note that the effects of locality and caching is ignored in this analysis. \\
     \newline
-    In the case of 2D array implementation, each element can be accessed in $O(1)$ time and so the total time complexity for addition in this case is $O(NM)$. \\
+    For the case of CSR implementation, each element can be accessed in O(M) time assuming the worst case where all the elements are non-zero. This is because the array JA has to be scanned for matching column index in order to access an element. So, the worst case time complexity for addition in this case will be $O(NM^2)$. \\   
     \newline
-    For the case of CSR implementation, each element can be accessed in $O(M)$ time assuming the worst case where a row has all the elements as non-zero. So, the time complexity for addition in this case will be $O(NM^2)$. \\   
-    \newline
-    The time complexities has been empirically determined for various matrix sizes and sparsities and the results are provided below. Square matrices (N=M) were used for simplicity of analysis,
+    The time complexities has been empirically determined for different matrix sizes and the results plotted below match with the analysis. Square matrices (N=M) were used for simplicity of analysis,
     
     \begin{center}
     	\includegraphics[scale=0.6]{3.png}		
@@ -52,13 +52,13 @@
     \end{center}
     
     \subsection{Matrix Multiplication}
-    For matrix multiplication, naive or brute force implementation takes $O(N^3)$ multiplication and addition operations for multiplying two NxN square matrices. \\
+    For matrix multiplication, analysis is done for multiplying two NxN square matrices without loss of generality. The naive or brute force implementation of the algorithm takes $O(N^3)$ multiplication and addition operations. Similar to addition, cache and locality effects are ignored in the analysis. \\
     \newline
-    In the case of 2D array implementation, each element can be accessed in $O(1)$ time and so the total time complexity for addition in this case is $O(N^3)$. \\
+    In the case of 2D array implementation, each element can be accessed in $O(1)$ time and so the total time complexity for multiplication in this case is $O(N^3)$. \\
     \newline
-    For the case of CSR implementation, each element can be accessed in $O(N)$ time assuming the worst case where a row has all the elements as non-zero. So, the time complexity for addition in this case will be $O(N^4)$. \\   
+    For the case of CSR implementation, each element can be accessed in $O(N)$ time assuming the worst case where all the elements are non-zero. So, the time complexity for multiplication in this case will be $O(N^4)$. \\   
     \newline    
-    The time complexities has been empirically determined for various matrix sizes and sparsities and the results are provided below,
+    The time complexities has been empirically determined for different matrix sizes and the results plotted below match with the analysis,
     
      \begin{center}
     	\includegraphics[scale=0.6]{5.png}		
@@ -70,18 +70,33 @@
 
     \subsection{Breadth First Search}
     
-    The time complexity of Breadth first search is O(V+E) where V is the no. of nodes and E is the no. of edges
+    Let V be the number of nodes and E be the number of edges. The breadth first search algorithm has the following components,
+    \begin{list}{*}{}
+    	\item Inserting and removing nodes from the queue. Each node will be inserted and removed once. So, the time complexity for this component is O(V)
+    	\item Scanning the neighbors for each node once. The current CSR implementation will take O(V) (Max. degree) time to check if a node is a neighbor in the worst case. So, the time complexity is $O(V^3)$ for performing scan of neighbors for all the nodes
+    	\item Inserting the visited nodes to the STL list. The time complexity is O(V)
+    	\item Sorting the list of nodes in each depth. The time complexity is O(V log V) 
+    \end{list}
+    It can be inferred that the total time complexity is $O(V^3)$.
 
-    \section{Conclusion}
-    It has been observed that the cache optimized and vectorized version of the program performs significantly better and scales well with the size of matrix. The optimized version took $0.513s$ to multiply 1024x1024 matrices of \emph{double} items. It is possible to improve the performance further by using divide and conquer algorithm like Strassen's which has a better complexity than $O(n^3)$. 
+    \begin{center}
+    	\includegraphics[scale=0.6]{7.png}		
+    \end{center}
+
+    \section{Code and Testing Remarks}
+    The makefile has been modified to use the C++ 11 standard during compilation. This is because the code uses some string parsing functions like std::stoi, std::stof etc. which are not available as part of C++ 98 standard. \\
+    \newline
+    The precision of the output is set by std::fixed and std::setprecision functions. The memory used by the program has been measured using the \emph{time} shell program and the time is measured using clock\_gettime() function. \\
+    \newline
+    Input files with random float numbers were generated for the purpose of empirical testing. The tests were run using custom shell scripts. [4] is the location of these scripts in the cluster.
     
     \section{References}
     
-    \begin{list}{*}{}
-    	\item https://gcc.gnu.org/projects/tree-ssa/vectorization.html
-    	\item https://stackoverflow.com/questions/1847789/segmentation-fault-on-large-array-sizes
-    	\item https://linux.die.net/man/3/clock\_gettime
-    	\item DS 221 Course lecture notes
+    \begin{list}{}{}
+    	\item 1. https://en.cppreference.com/
+    	\item 2. https://www.geeksforgeeks.org/
+    	\item 3. DS 221 Course lecture notes
+    	\item 4. /home/shriramr/ds221/part\_2/code/test
     \end{list}
 
 \end{document}
