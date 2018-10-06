@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
    for(int j=0; j<cols; j++)
    {
     cout<<mat[i][j];
-    if(j != rows-1)
+    if(j != cols-1)
       cout<<"\t";
    }
    cout<<"\n";

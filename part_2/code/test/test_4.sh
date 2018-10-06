@@ -1,5 +1,5 @@
 #!/bin/bash
 
-../Runner.o bfs $1 $2 output.tsv
+/usr/bin/time -f "%M" ../Runner.o bfs $1 $2 output.tsv
 
  
