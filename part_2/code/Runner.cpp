@@ -31,7 +31,7 @@ IMatrix *load_arr(char *input_file) {
         throw invalid_argument(string("Input file does not exist!"));
     }
     // Load data into the matrix
-    try{
+    try {
         getline(input, line);
         s.str(line);
         s >> t;
@@ -50,9 +50,9 @@ IMatrix *load_arr(char *input_file) {
                 row[j] = stof(t);
             }
             mat->append(row);
-        }  
+        }
     }
-    catch(const invalid_argument& ia) {
+    catch (const invalid_argument &ia) {
         throw invalid_argument(string("File has invalid characters or format!"));
     }
     // Close the file
@@ -92,12 +92,12 @@ IMatrix *load_csr(char *input_file) {
                 row[j] = stof(t);
             }
             mat->append(row);
-        }  
+        }
     }
-    catch(const invalid_argument& ia) {
+    catch (const invalid_argument &ia) {
         throw invalid_argument(string("File has invalid characters or format!"));
     }
-    
+
     // Close the file
     input.close();
     return mat;
@@ -130,7 +130,7 @@ void print_mat(IMatrix *mat, char *output_file) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             output << fixed << setprecision(3) << mat->get(i, j);
-            if(j<cols-1)
+            if (j < cols - 1)
                 output << "\t";
         }
         output << "\n";
@@ -297,36 +297,39 @@ void bfs(char *input_file, char *root_id, char *output_file) {
 
 
     IMatrix *mat1;
-    list<tl> traverse_list;
+    list <tl> traverse_list;
     queue<int> q;
     int nodes, item, root;
     struct timespec start, end;
 
     mat1 = load_csr(input_file);
     nodes = mat1->col_count();
-    int* mat2 = new int[nodes]; // Stores the depth of each node
-    root=atoi(root_id);
+    int *dep = new int[nodes]; // Stores the depth of each node
+    root = atoi(root_id);
 
-    for(int i=0; i<nodes; i++) // Initial depth is -1
-        mat2[i]=-1;
+    for (int i = 0; i < nodes; i++) // Initial depth is -1
+        dep[i] = -1;
 
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start); // Start timer
     q.push(root); // Add root to the queue
-    mat2[root]=0; // depth of root is zero
-    while(!q.empty()) { // Queue is empty if we complete search of entire connected component
-      item = q.front(); // Get the front element from the queue
-      q.pop();
-      if(traverse_list.size() < mat2[item]+1) { // Add a new depth to traverse list if not present already
-          tl *new_depth = new tl(mat2[item]);
-          traverse_list.push_back(*new_depth);
-      }
-      traverse_list.back().vid.push_back(item); // Add the node to the traverse list
-      for(int i=0; i<nodes; i++) {
-          if(mat1->get(item, i) && mat2[i] == -1) { // Add a adjacent node to the queue if not visited already
-              mat2[i] = mat2[item]+1; // Set the depth of adjacent node to current+1
-              q.push(i);
-          }
-      }
+    dep[root] = 0; // depth of root is zero
+    while (!q.empty()) { // Queue is empty if we complete search of entire connected component
+        item = q.front(); // Get the front element from the queue
+        q.pop();
+        if (traverse_list.size() < dep[item] + 1) { // Add a new depth to traverse list if not present already
+            tl *new_depth = new tl(dep[item]);
+            traverse_list.push_back(*new_depth);
+        }
+        traverse_list.back().vid.push_back(item); // Add the node to the traverse list
+        for (int i = 0; i < nodes; i++) {
+            if (dep[i] == -1 && mat1->get(item, i)) { // Add a adjacent node to the queue if not visited already
+                dep[i] = dep[item] + 1; // Set the depth of adjacent node to current+1
+                q.push(i);
+            }
+        }
+    }
+    for (list<tl>::iterator i = traverse_list.begin(); i != traverse_list.end(); i++) {
+        i->vid.sort(); // Sort in ascending order
     }
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end); // End timer
 
@@ -337,7 +340,6 @@ void bfs(char *input_file, char *root_id, char *output_file) {
     // Write the data to the file
     for (list<tl>::iterator i = traverse_list.begin(); i != traverse_list.end(); i++) {
         output << i->depth;
-        i->vid.sort(); // Sort in ascending order
         for (list<int>::iterator j = i->vid.begin(); j != i->vid.end(); j++) {
             output << "," << *j;
         }
@@ -363,8 +365,13 @@ int main(int n, char *argv[]) {
         multiply(argv[2], argv[3], argv[4], argv[5]);
     } else if (strcmp("bfs", argv[1]) == 0) {
         bfs(argv[2], argv[3], argv[4]);
-    } else
+    } else {
         cout << "[main] invalid input parameters. Valid usage is..." << endl;
+        cout << "./Runner.o load [array|csr] <input_file> <output_file>" << endl;
+        cout << "./Runner.o add [array|csr] <input_file_1> <input_file_2> <output_file>" << endl;
+        cout << "./Runner.o multiply [array|csr] <input_file_1> <inpout_file_2> <output_file>" << endl;
+        cout << "./Runner.o bfs <input_file> <root_row_id> <output_file>" << endl;
+    }
 
     return 0;
 
