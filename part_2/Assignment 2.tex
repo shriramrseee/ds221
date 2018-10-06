@@ -16,7 +16,7 @@
 	\maketitle
 	
 	\section{2D Matrices}
-	The 2D matrix abstract data structure has been implemented using 2D array and compressed sparse matrix representation (CSR) and the space and time complexities has been analyzed and empirically verified.
+	The 2D matrix abstract data structure has been implemented using 2D array and compressed sparse matrix representation (CSR) and the space and time complexities have been analyzed and empirically verified.
 	The following sections will cover the analysis and empirical results in detail.
 	
 	\subsection{Storage Space}
@@ -37,9 +37,9 @@
     For CSR, the sparse percentage denotes the percentage of elements that are zero in the matrix.
 
     \subsection{Matrix Addition}
-    For matrix addition, all the elements of both input and output matrices have to be processed exactly once and there are NM elements in each matrix. In the case of 2D array implementation, each element can be accessed in O(1) time and so the total time complexity for addition in this case is O(NM). Note that the effects of locality and caching is ignored in this analysis. \\
+    For matrix addition, all the elements of both input and output matrices have to be processed exactly once and there are NM elements in each matrix. The effects of locality and caching is ignored in this analysis. In the case of 2D array implementation, each element can be accessed in O(1) time and so the total time complexity for addition in this case is O(NM).\\
     \newline
-    For the case of CSR implementation, each element can be accessed in O(M) time assuming the worst case where all the elements are non-zero. This is because the array JA has to be scanned for matching column index in order to access an element. So, the worst case time complexity for addition in this case will be $O(NM^2)$. \\   
+    For the case of CSR implementation, each element can be accessed in $O(\frac{NNZ}{N})$ time (worst case) assuming that each row has $\frac{NNZ}{N}$ non-zero elements. This is because the array JA has to be scanned for matching column index in order to access an element. So, the worst case time complexity for addition in this case will be O(M*NNZ). \\   
     \newline
     The time complexities has been empirically determined for different matrix sizes and the results plotted below match with the analysis. Square matrices (N=M) were used for simplicity of analysis,
     
@@ -56,7 +56,7 @@
     \newline
     In the case of 2D array implementation, each element can be accessed in $O(1)$ time and so the total time complexity for multiplication in this case is $O(N^3)$. \\
     \newline
-    For the case of CSR implementation, each element can be accessed in $O(N)$ time assuming the worst case where all the elements are non-zero. So, the time complexity for multiplication in this case will be $O(N^4)$. \\   
+    For the case of CSR implementation, each element can be accessed in $O(\frac{NNZ}{N})$ time (worst case) assuming that each row has $\frac{NNZ}{N}$ non-zero elements. So, the time complexity for multiplication in this case will be $O(N^2*$NNZ). \\   
     \newline    
     The time complexities has been empirically determined for different matrix sizes and the results plotted below match with the analysis,
     
@@ -73,11 +73,23 @@
     Let V be the number of nodes and E be the number of edges. The breadth first search algorithm has the following components,
     \begin{list}{*}{}
     	\item Inserting and removing nodes from the queue. Each node will be inserted and removed once. So, the time complexity for this component is O(V)
-    	\item Scanning the neighbors for each node once. The current CSR implementation will take O(V) (Max. degree) time to check if a node is a neighbor in the worst case. So, the time complexity is $O(V^3)$ for performing scan of neighbors for all the nodes
+    	\item Scanning the neighbors for each node to add to the queue. Each edge will be scanned once and so the time complexity is O(E) 
     	\item Inserting the visited nodes to the STL list. The time complexity is O(V)
     	\item Sorting the list of nodes in each depth. The time complexity is O(V log V) 
     \end{list}
-    It can be inferred that the total time complexity is $O(V^3)$.
+    It can be inferred that the total time complexity is $O(V + E + V log V)$. If sorting is not required, the time complexity will come down to $O(V+E)$. \\
+    \newline
+    The total space complexity of BFS is O(V + E) and can be determined by the size of following data structures,
+    
+    \begin{list}{*}{}
+    	\item The size of CSR adjacency matrix is O(V + 2E)
+    	\item The size of queue is O(V)
+    	\item The size of list to store depth wise nodes is O(V)
+    \end{list}
+
+    The empirical data is plotted below and matches with the analysis. Please note that the x axis in the plot is Vertex + Edges. \\
+        
+    The limiting factor for testing is the size of input tsv file. Since, it has a 2D array structure with value for all the elements present, graphs with large vertex count could not be generated for testing. 
 
     \begin{center}
     	\includegraphics[scale=0.6]{7.png}		
