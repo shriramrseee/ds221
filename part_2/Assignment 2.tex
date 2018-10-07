@@ -87,7 +87,7 @@
     	\item The size of list to store depth wise nodes is O(V)
     \end{list}
 
-    The empirical data is plotted below and matches with the analysis. Please note that the x axis in the plot is Vertex + Edges. \\
+    The empirical data is plotted below. V = E condition was set for input file generation for simplicity of analysis. Please note that the x axis in the plot is Vertex + Edges. \\
         
     The limiting factor for testing is the size of input tsv file. Since, it has a 2D array structure with value for all the elements present, graphs with large vertex count could not be generated for testing. 
 
@@ -95,20 +95,29 @@
     	\includegraphics[scale=0.6]{7.png}		
     \end{center}
 
+    \begin{center}
+    	\includegraphics[scale=0.6]{8.png}		
+    \end{center}
+
+   The time complexity matches with the analysis but the space complexity does not match in this case. This could be due to the implementation of STL list and queue structures. Further data for higher value of V + E is required to confirm this theory but could not be obtained due to input file size issue.
+
     \section{Code and Testing Remarks}
-    The makefile has been modified to use the C++ 11 standard during compilation. This is because the code uses some string parsing functions like std::stoi, std::stof etc. which are not available as part of C++ 98 standard. \\
+    The makefile has been modified to use the C++ 11 standard during compilation. This is because the code uses some string parsing functions like std::stoi, std::stof etc. which are not available as part of C++ 98 standard. Please use the custom makefile provided for build.\\
     \newline
     The precision of the output is set by std::fixed and std::setprecision functions. The memory used by the program has been measured using the \emph{time} shell program and the time is measured using clock\_gettime() function. \\
     \newline
-    Input files with random float numbers were generated for the purpose of empirical testing. The tests were run using custom shell scripts. [4] is the location of these scripts in the cluster.
+    \begin{verbatim}
+    \end{verbatim}
+    Input files with random float numbers were generated for the purpose of empirical testing. The tests were run using custom shell scripts. [4] is the location of these scripts in the cluster. The data from tests are available at [5].
     
     \section{References}
     
     \begin{list}{}{}
     	\item 1. https://en.cppreference.com/
-    	\item 2. https://www.geeksforgeeks.org/
-    	\item 3. DS 221 Course lecture notes
+    	\item 2. DS 221 Course lecture notes
+    	\item 3. https://www.geeksforgeeks.org/
     	\item 4. /home/shriramr/ds221/part\_2/code/test
+    	\item 5. /home/shriramr/ds221/part\_2/data/
     \end{list}
 
 \end{document}
