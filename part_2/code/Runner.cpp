@@ -125,6 +125,9 @@ void print_mat(IMatrix *mat, char *output_file) {
     cols = mat->col_count();
     // Open the file
     output.open(output_file);
+    if (!output.is_open()) {
+        throw invalid_argument(string("Output file does not exist!"));
+    }
     // Write the data to the file
     output << rows << "\t" << cols << "\n";
     for (int i = 0; i < rows; i++) {
