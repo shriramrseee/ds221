@@ -19,40 +19,42 @@
 using namespace std;
 
 // Load an input file into a dictionary
-IDictionary *insert_dict(char *input_file, IDictionary *dic, int &count) {
+double insert_dict(char *input_file, IDictionary *dic, int &count) {
     ifstream input;
-    string line, t;
-    stringstream s;
+    string t;
     int key;
+    char *value;
+    struct timespec start, end;
+    double insert_time = 0;
     // Open the file
     input.open(input_file);
     if (!input.is_open()) {
         throw invalid_argument(string("Input file does not exist!"));
     }
     // Load data into the dictionary
-    // try {
-        while(1) {
-            // getline(input, line);
-            // s.str(line);
-            input >> key;
-            cout << key;
-            // key = stoi(t); // Get the key
+    try {
+        while(!input.eof()) {
+            input >> t;
+            key = stoi(t); // Get the key
             count++;
             t = "";
             getline(input, t);
-            cout<<t;
-            char *value = new char[t.length() + 1];
+            t.replace(0,1,"");
+            value = new char[t.length() + 1];
             strcpy(value, t.c_str());
+            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start); // Start timer
             dic->insert(key, value); // Insert the Key value pair
-        }        
-    // }
-    // catch (const invalid_argument &ia) {
-    //    throw invalid_argument(string("Input file has invalid characters or format!"));
-    // }
+            clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end); // End timer
+            insert_time += (end.tv_nsec - start.tv_nsec) / 1000000.0 + (end.tv_sec - start.tv_sec) * 1000;
+        }            
+    }        
+    catch (const invalid_argument &ia) {
+        if(!input.eof())
+            throw invalid_argument(string("Input file has invalid characters or format!"));
+    }
     // Close the file
     input.close();
-    cout << count;
-    return dic;
+    return insert_time;
 }
 
 // Initialize an hash based dictionary
@@ -80,8 +82,7 @@ double lookup_dict(char *lookup_file, IDictionary *dic, char *output_file, int &
     struct timespec start, end;
     double lookup_time = 0;
     int key;
-    string line, t;
-    stringstream s;
+    string t;
     char *value;
     // Open the lokkup and output files
     lookup.open(lookup_file);
@@ -95,9 +96,8 @@ double lookup_dict(char *lookup_file, IDictionary *dic, char *output_file, int &
     // Lookup and Write the data to the file
     try {
         while(!lookup.eof()) {
-            getline(lookup, line);
-            s.str(line);
-            s >> t;
+            t = "";
+            lookup >> t;
             key = stoi(t); // Get the key
             count++;
             clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start); // Start timer
@@ -108,7 +108,8 @@ double lookup_dict(char *lookup_file, IDictionary *dic, char *output_file, int &
         }
     }
     catch (const invalid_argument &ia) {
-        throw invalid_argument(string("Lookup file has invalid characters or format!"));
+        if(!lookup.eof())
+            throw invalid_argument(string("Lookup file has invalid characters or format!"));
     }
     // Close the files
     lookup.close();
@@ -118,31 +119,34 @@ double lookup_dict(char *lookup_file, IDictionary *dic, char *output_file, int &
 }
 
 // Loads a dictionary with the input data, searches for different keys and writes the output to a file
-void load(char *dic_type, char *input_file, char* lookup_file, char *output_file) {
+void load(char *dic_type, char *capacity, char *input_file, char* lookup_file, char *output_file) {
 
     IDictionary *dic;
-    struct timespec start, end;
     double insert_time, lookup_time;
     char *value;
-    int insert_count, lookup_count;
+    int insert_count = 0;
+    int lookup_count = 0;
+    struct timespec start, end;
 
     if (strcmp("hash", dic_type) == 0) {        
-        dic = init_hash(1000);        
+        dic = init_hash(atoi(capacity));        
     } else if (strcmp("array", dic_type) == 0) {        
-        dic = init_arr(1000);        
+        dic = init_arr(atoi(capacity));        
     } else if (strcmp("bsearch", dic_type) == 0) {        
-        dic = init_bin(1000);        
+        dic = init_bin(atoi(capacity));        
     } else
         cout << "[load] invalid dictionary type input seen: " << dic_type << endl;
+    
+    insert_time = insert_dict(input_file, dic, insert_count); 
 
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start); // Start timer
-    insert_dict(input_file, dic, insert_count);
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end); // End timer
-
-    insert_time = (end.tv_nsec - start.tv_nsec) / 1000000.0 + (end.tv_sec - start.tv_sec) * 1000;
+    if (strcmp("bsearch", dic_type) == 0) {        
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start); // Start timer
+        ((BSearchDictImpl *)dic)->sort();
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end); // End timer
+        insert_time += (end.tv_nsec - start.tv_nsec) / 1000000.0 + (end.tv_sec - start.tv_sec) * 1000;
+    }   
 
     lookup_time = lookup_dict(lookup_file, dic, output_file, lookup_count);
-
 
     // Print time taken in milliseconds to stdout
     cout << dic_type << "," << insert_count << "," << insert_time << "," << lookup_count << "," << lookup_time << "\n";
@@ -151,7 +155,7 @@ void load(char *dic_type, char *input_file, char* lookup_file, char *output_file
 
 int main(int n, char *argv[]) {
     
-    load(argv[1], argv[2], argv[3], argv[4]);
+    load(argv[1], argv[2], argv[3], argv[4], argv[5]);
     return 0;
 
 }

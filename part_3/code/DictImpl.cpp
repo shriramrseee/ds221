@@ -1,3 +1,9 @@
+/**
+ * Created by: Shriram R.
+ * Roll No: 06-02-01-10-51-18-1-15763
+ */
+
+
 #include "IDictionary.h"
 #include <list>
 #include <iostream>
@@ -9,11 +15,14 @@ struct item {
     char *value;
 };
 
+char null[] = "";
+
+// Hash table implementation
 class HashTableImpl : public IDictionary {
 
 private:
 
-    list<item> *table;
+    list<item> *table; // pointer to array of list of items
     int cap;
 
 public:
@@ -25,20 +34,21 @@ public:
 
     void insert(int key, char *value) {
         struct item i = {key, value};
-        table[key % cap].push_back(i);
+        table[key % cap].push_back(i); // Add to the end of the list
     }
 
     char *lookup(int key) {
-        for (struct item i: table[key % cap]) {
+        for (struct item i: table[key % cap]) { // Iterate over each item in the list
             if (i.key == key) {
                 return i.value;
             }
         }
-        return 0;
+        return null;
     }
 
 };
 
+// Unsorted array implementation
 class ArrayDictImpl : public IDictionary {
 
 private:
@@ -56,23 +66,26 @@ public:
     }
 
     void insert(int key, char *value) {
+        if (curr == cap) {
+            throw out_of_range(string("Dictionary is full!")); // Throw error if capacity would be exceeded
+        }
         struct item i = {key, value};
         table[curr] = i;
         curr++;
     }
 
     char *lookup(int key) {
-        for (int i=0; i<curr; i++) {
+        for (int i=0; i<curr; i++) { // Iterate over current items in the array
             if (table[i].key == key) {
                 return table[i].value;
             }
         }
-        return 0;
+        return null;
     }
 
 };
 
-
+// Sorted array implementation
 class BSearchDictImpl : public IDictionary {
 
 private:
@@ -90,12 +103,15 @@ public:
     }
 
     void insert(int key, char *value) {
+        if (curr == cap) {
+            throw out_of_range(string("Dictionary is full!")); // Throw error if capacity would be exceeded
+        }
         struct item i = {key, value};
         table[curr] = i;
         curr++;
     }
 
-    char *lookup(int key) {
+    char *lookup(int key) { // Perform binary search
         int left, right, mid;
         left = 0;
         right = curr - 1;
@@ -109,14 +125,14 @@ public:
                 left = mid + 1;
             }
         }
-        return 0;
+        return null;
     }
 
-    void sort() {
+    void sort() { // Use quicksort to sort the elements of the array
         qsort(table, curr, sizeof(item), compare);
     }
 
-    static int compare(const void *a, const void *b) {
+    static int compare(const void *a, const void *b) { // Comparator for quick sort
         return (*(item *) a).key - (*(item *) b).key;
     }
 
