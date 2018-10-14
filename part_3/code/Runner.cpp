@@ -134,8 +134,10 @@ void load(char *dic_type, char *capacity, char *input_file, char* lookup_file, c
         dic = init_arr(atoi(capacity));        
     } else if (strcmp("bsearch", dic_type) == 0) {        
         dic = init_bin(atoi(capacity));        
-    } else
+    } else {
         cout << "[load] invalid dictionary type input seen: " << dic_type << endl;
+        return;
+    }
     
     insert_time = insert_dict(input_file, dic, insert_count); 
 
