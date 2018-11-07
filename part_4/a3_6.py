@@ -1,14 +1,32 @@
 from pyspark import SparkContext, SparkConf
+import csv
 
 sc = SparkContext.getOrCreate()
 
+
+# Unicode reader
+
+def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
+    # csv.py doesn't do Unicode; encode temporarily as UTF-8:
+    csv_reader = csv.reader(utf_8_encoder(unicode_csv_data),
+                            dialect=dialect, **kwargs)
+    for row in csv_reader:
+        # decode UTF-8 back to Unicode, cell by cell:
+        yield [unicode(cell, 'utf-8') for cell in row]
+
+def utf_8_encoder(unicode_csv_data):
+    for line in unicode_csv_data:
+        yield line.encode('utf-8')
+
+
 # Read csv file
-m = sc.textFile("hdfs:///user/simmhan/ml/small/movies.csv").filter(lambda l: l.split(',')[0] != 'movieId')
+m = sc.textFile("hdfs:///user/simmhan/ml/full/movies.csv")
+mu = m.map(lambda l: tuple(unicode_csv_reader([l,]))[0]).filter(lambda l: l[0] != u'movieId').cache()
 
 
 # Computation
 
-a =  m.map(lambda l: (l.split(',')[0], l.split(',')[2]))
+a =  mu.map(lambda l: (l[0], l[2]))
 
 b = a.filter(lambda kv: len(kv[1].split('|')) > 1)
 

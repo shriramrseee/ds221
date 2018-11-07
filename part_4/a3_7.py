@@ -22,20 +22,24 @@ def utf_8_encoder(unicode_csv_data):
 # Read csv file
 m = sc.textFile("hdfs:///user/simmhan/ml/full/movies.csv")
 mu = m.map(lambda l: tuple(unicode_csv_reader([l,]))[0]).filter(lambda l: l[0] != u'movieId').cache()
+g = sc.textFile("hdfs:///user/simmhan/ml/full/genome-scores.csv")
+gs = g.map(lambda l: tuple(unicode_csv_reader([l,]))[0]).filter(lambda l: l[0] != u'movieId').cache()
 
-# Get max. and min. genres
-a =  mu.flatMap(lambda l: zip(l[2].split('|'), [1,]*len(l[2].split('|'))))
-b = a.reduceByKey(lambda a, b: a+b).cache()
-max_c = b.map(lambda kv: kv[1]).max()
-min_c = b.map(lambda kv: kv[1]).min()
-max_l = lambda kv: kv[1] == max_c
-min_l = lambda kv: kv[1] == min_c
-max_t = b.filter(max_l).collect()
-min_t = b.filter(min_l).collect()
+# Computation
+a = gs.filter(lambda l: l[0] == '79132')
+b = gs.filter(lambda l: l[0] != '79132')
+c = a.map(lambda l: (l[1], float(l[2])))
+d = b.map(lambda l: (l[1], (l[0], float(l[2]))))
+e = c.join(d)
+f = e.flatMap(lambda kv: [(i[0], abs(i[1]*i[1] - kv[1][0]*kv[1][0])) for i in kv[1][1:]])
+h = f.reduceByKey(lambda a, b: a+b)
+i = mu.map(lambda l: (l[0], l[1]))
+j = h.join(i)
+k = j.map(lambda kvp: (kvp[1][0], kvp[1][1]))
+l = k.sortByKey().take(10)
 
-# print
 
-for i in max_t:
-    print i[0]
-for i in min_t:
-    print i[0]
+# Print results
+
+for x in l:
+    print x[1]
