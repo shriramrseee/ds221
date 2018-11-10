@@ -5,6 +5,7 @@ sc = SparkContext.getOrCreate()
 
 
 # Unicode reader
+# Reference: https://docs.python.org/2/library/csv.html#examples
 
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
     # csv.py doesn't do Unicode; encode temporarily as UTF-8:
@@ -56,6 +57,6 @@ min_v = f.filter(min_l)
 # print
 
 for i in max_v.collect():
-    print i[0]
+    print i[0],
 for i in min_v.collect():
-    print i[0]
+    print i[0],

@@ -1,0 +1,68 @@
+======================================================================================
+DS 221 - Introduction to Scalable Systems
+======================================================================================
+
+======================================================================================
+Name: Shriram R.
+Roll No.: 06-02-01-10-51-18-1-15763
+Assignment - 3 - Data Analytics in Spark
+======================================================================================
+
+
+Problem 1
+=========
+
+Console Output: 283228 19325 19325 
+Application ID: application_1524406905265_3287
+Time:  2m36s
+
+
+Problem 2
+=========
+
+Console Output: 97.9897608993 3.53044521249
+Application ID: application_1524406905265_3289
+Time: 3m29s
+
+
+Problem 3
+=========
+
+Console Output: 3.5
+Application ID: application_1524406905265_3290
+Time: 5m6s
+
+
+Problem 4
+=========
+
+Console Output: 10
+Application ID: application_1524406905265_3292
+Time: 0m24s
+
+
+Problem 5
+=========
+
+Console Output: Drama IMAX
+Application ID: application_1524406905265_3294
+Time: 0m24s
+
+
+Problem 6
+=========
+
+Console Output: Drama|Romance Film-Noir|Western
+Application ID: application_1524406905265_3295
+Time: 0m30s
+
+
+
+Problem 7
+=========
+
+Console Output: Interstellar (2014) Arrival (2016) Prestige, The (2006) Matrix, The (1999) Run Lola Run (Lola rennt) (1998) Source Code (2011) Ex Machina (2015) Twelve Monkeys (a.k.a. 12 Monkeys) (1995) The Lost Room (2006) Memento (2000)
+Application ID: application_1524406905265_3297
+Time: 4m4.908s
+
+

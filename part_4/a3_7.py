@@ -3,8 +3,15 @@ import csv
 
 sc = SparkContext.getOrCreate()
 
+# Movie ID
+
+mid = '79132'
+imid = lambda l: l[0] == mid
+emid = lambda l: l[0] != mid
+
 
 # Unicode reader
+# Reference: https://docs.python.org/2/library/csv.html#examples
 
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
     # csv.py doesn't do Unicode; encode temporarily as UTF-8:
@@ -26,12 +33,14 @@ g = sc.textFile("hdfs:///user/simmhan/ml/full/genome-scores.csv")
 gs = g.map(lambda l: tuple(unicode_csv_reader([l,]))[0]).filter(lambda l: l[0] != u'movieId').cache()
 
 # Computation
-a = gs.filter(lambda l: l[0] == '79132')
-b = gs.filter(lambda l: l[0] != '79132')
+imid = lambda l: l[0] == mid
+emid = lambda l: l[0] != mid
+a = gs.filter(imid)
+b = gs.filter(emid)
 c = a.map(lambda l: (l[1], float(l[2])))
 d = b.map(lambda l: (l[1], (l[0], float(l[2]))))
 e = c.join(d)
-f = e.flatMap(lambda kv: [(i[0], abs(i[1]*i[1] - kv[1][0]*kv[1][0])) for i in kv[1][1:]])
+f = e.flatMap(lambda kv: [(i[0], abs(i[1]- kv[1][0])**2) for i in kv[1][1:]])
 h = f.reduceByKey(lambda a, b: a+b)
 i = mu.map(lambda l: (l[0], l[1]))
 j = h.join(i)
@@ -42,4 +51,4 @@ l = k.sortByKey().take(10)
 # Print results
 
 for x in l:
-    print x[1]
+    print x[1],
