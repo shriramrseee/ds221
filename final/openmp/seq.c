@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
+#include <time.h>
+#include <unistd.h>
+#include <sys/time.h>
 
-#define SIZE 20000
+
 #define CLUSTERS 20
 
 
@@ -13,14 +16,20 @@ int main()
  int min_label;
  float centroid[CLUSTERS][2];
  float temp[CLUSTERS][3];
- float min_dist, dist; 
+ float min_dist, dist;
+ long start, end;
+ struct timeval timecheck;
 
  for(int i=0; i<SIZE; i++) {
    scanf("%f,%f", &pts[i][0], &pts[i][1]);
  }
 
+  gettimeofday(&timecheck, NULL);
+  start = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
+
+
  // Assign Initial centroid
- 
+
  for(int i=0; i<CLUSTERS; i++) {
   centroid[i][0] = pts[i*SIZE/CLUSTERS][0];
   centroid[i][1] = pts[i*SIZE/CLUSTERS][1];
@@ -39,7 +48,7 @@ int main()
   for(int j=0; j<SIZE; j++) {
    min_dist = FLT_MAX;
    for(int k=0; k<CLUSTERS; k++) {
-    dist = fabs(pts[j][0]-centroid[k][0])*fabs(pts[j][0]-centroid[k][0]) + fabs(pts[j][1]-centroid[k][1])*fabs(pts[j][1]-centroid[k][1]);
+    dist = (pts[j][0]-centroid[k][0])*(pts[j][0]-centroid[k][0]) + (pts[j][1]-centroid[k][1])*(pts[j][1]-centroid[k][1]);
     if(dist<min_dist) {
      min_dist = dist;
      min_label = k;
@@ -59,16 +68,18 @@ int main()
   }
  }
 
+  gettimeofday(&timecheck, NULL);
+  end = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
+
+
  // Print output
-  
+
  for(int i=0; i<CLUSTERS; i++) {
   printf("%d %d %f %f \n", i, (int)temp[i][2], centroid[i][0], centroid[i][1]);
  }
- 
+
+  printf("%f\n", (end - start)/1000.0);
+
  return 0;
 }
-
-   
-
- 
 
