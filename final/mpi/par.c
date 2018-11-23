@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "mpi.h"
+#include <unistd.h>
+#include <sys/time.h>
+
 
 void swap(int *a, int *b) {
     int t = *a;
@@ -65,6 +68,9 @@ int main(int argc, char **argv) {
 
     int *arr, *arr2, *temp, *p;
     int rank, procs, len, len2, step;
+    long start, end;
+    struct timeval timecheck;
+
     MPI_Comm comm = MPI_COMM_WORLD;
     MPI_Status status;
 
@@ -84,6 +90,9 @@ int main(int argc, char **argv) {
             scanf("%d", &arr[i]);
         }
     }
+   
+    gettimeofday(&timecheck, NULL);
+    start = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
 
     // Send and Receive Input
     if (rank == 0) {
@@ -123,13 +132,18 @@ int main(int argc, char **argv) {
 
     MPI_Barrier(comm);
 
+    gettimeofday(&timecheck, NULL);
+    end = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
+ 
+    
     // Print sorted list
     if (rank == 0) {
         for (int i = 0; i < SIZE; i++) {
             printf("%d\n", arr[i]);
         }
+        printf("%f\n", (end - start)/1000.0);
     }
-
+    
 
     MPI_Finalize();
 

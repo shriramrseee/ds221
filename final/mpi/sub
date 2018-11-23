@@ -1,0 +1,5 @@
+# !/bin/csh
+
+cd /home/shriramr/ds221/final/mpi
+
+./exp.sh

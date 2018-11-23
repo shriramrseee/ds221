@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <unistd.h>
+#include <sys/time.h>
+
 
 void swap(int *a, int *b) {
     int t = *a;
@@ -46,20 +49,33 @@ void qsort(int *arr, int l, int h) {
 int main() {
 
     int arr[SIZE];
+    long start, end;
+    struct timeval timecheck;
+
 
     // Read Input
     for (int i = 0; i < SIZE; i++) {
         scanf("%d", &arr[i]);
     }
+    
+    gettimeofday(&timecheck, NULL);
+    start = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
+
 
     // Perform quick sort
     qsort(arr, 0, SIZE - 1);
 
-
+    gettimeofday(&timecheck, NULL);
+    end = (long)timecheck.tv_sec * 1000 + (long)timecheck.tv_usec / 1000;
+ 
     // Print sorted list
     for (int i = 0; i < SIZE; i++) {
         printf("%d\n", arr[i]);
     }
+
+    printf("%f\n", (end - start)/1000.0);
+    
+    return 0;
 
 }
 

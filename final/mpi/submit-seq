@@ -1,5 +1,0 @@
-# !/bin/csh
-
-cd /home/shriramr/ds221/final/openmp
-
-./seq < data_20k.csv
