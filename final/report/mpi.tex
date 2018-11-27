@@ -6,118 +6,145 @@
 \usepackage{graphicx}
 \usepackage{color}
 \usepackage {tikz}
+\usepackage{fancyvrb}
 \usetikzlibrary {er}
 \usepackage[left=2.00cm, right=2.00cm, top=1.00cm]{geometry}
 \graphicspath{{./}}
+\fvset{tabsize=4}
 
 \begin{document}
-	\title{DS 221 - Introduction to Scalable Systems \\ Assignment 2 - B}
+	\title{DS 221 - Introduction to Scalable Systems \\ Parallel Merge Sort using MPI}
 	\author{Shriram R. \\ M Tech (CDS) \\ 06-02-01-10-51-18-1-15763}
 	\maketitle
 	
-	\section{Searching}
-	The dictionary abstract data type has been implemented by hash map, unsorted arrray and sorted array. Time complexities for Insert and Lookup performance have been analyzed and empirically verified. The following sections will cover the analysis and empirical results in detail.
+	\section{Introduction}
+    Parallel Merge Sorting algorithm has been implemented using MPI and the speedup for different number of processes with respect to sequential version were observed through experiments. The following sections cover the methodology, experimental setup and results in detail.
 	
-	\subsection{Hash Table}
-	Let C denote the capacity or number of buckets in the hash table and N denote the total number of records in the hash table. Collisions are resolved by chaining of key-value records. K mod C is the hash function used where K is the key value.\\
-	\newline
-	In the case of insertion, a new record would be added to the end of the chain (STL list) of its bucket. The time complexity for this insertion is O(1). Hence, insertion of N records take O(N) time. This is independent of the key distribution. \\
-	\newline
-	For uniform distribution of keys, each bucket would have $\frac{N}{C}$ records on average. Hence, the time complexity to search a record is $O(\frac{N}{C})$. For non-uniform ditribution, the worst case time complexity is O(N). This happens when all the records are present in a single bucket. However, if the maximum number of records in a bucket is bounded by M ($<$N), then the worst case time complexity is O(M).
-	
-	\begin{center}
-		\includegraphics[scale=0.6]{1.png}		
-	\end{center}
-
-    \begin{center}
-    	\includegraphics[scale=0.6]{2.png}		
-    \end{center}
-
-    \begin{center}
-    	\includegraphics[scale=0.6]{7.png}		
-    \end{center}
-
-    The X axis in lookup plots denote the number of records present in hash table during the lookup. Each line in the plot is for different capacity. The time plotted is the average value for 1 record.\\
-	
-	It is observed that the insert time is consistent with theoretical analysis. The lookup time is consistent for large values of N but deviates from the analytical model for lower N values for uniform distribution. This is could be due to caching and locality that are not captured in the theoretical model. For non-uniform, all the keys generated map to a single hash bucket to simulate a worst case.
-	
-	\subsection{Unsorted Array}
-	Insertion for each record can be done in O(1) time since a new record is added to the end of the array. Hence, the time complexity to insert N records would be O(N). \\
-	\newline
-	For lookup, linear scan is performed over the entire array till the last record since the records are not sorted by key. Hence, the worst case time complexity for lookup is O(N). Note that the insert and lookup time is independent of key distribution.
-	
-	\begin{center}
-		\includegraphics[scale=0.6]{3.png}		
-	\end{center}
-	
-	\begin{center}
-		\includegraphics[scale=0.6]{4.png}		
-	\end{center}
-
-    From the emprical results, it can be observed that the time taken generally agrees with the analysis. There is a minor deviation of lookup time from the theoretical value which could be due to cache effects and inaccuracies in measuring the lookup time.
-	
-	\subsection{Sorted Array}
-	Insertion of records takes O(N) time similar to that of unsorted array but there is an additional step at the end of insertion which sorts the records by key. This takes an additional O(N log N) time. So, the total time complexity is O(N log N). \\
-	\newline
-	For lookup, binary search of the lookup key is performed on the sorted array. The time complexity for this binary search is O(log N). Similar to sorted array, the lookup and insert time is independent of key distribution. 
-	
-	\begin{center}
-		\includegraphics[scale=0.6]{5.png}		
-	\end{center}
-	
-	\begin{center}
-		\includegraphics[scale=0.6]{6.png}		
-	\end{center}
-     
-     It is observed that the insert time is consistent with theoretical analysis. The lookup time marginally deviates from the theoretical value for lower N values. This could be due to caching and inaccuracies in capturing the time for lookup.  
-     
-    \subsection{Comparison}
-    The table given below show the theoretical complexities of the above implementations. It can be inferred that unsorted array is the worst choice in terms of lookup time. Hash table is better than sorted array in terms of lookup if the bucket count C is greater than $\frac{N}{log N}$. Hash table is also faster for inserts than sorted array. \\
-    \newline
-     \begin{center}
-     	\begin{tabular}{|c|c|c|}
-     		\hline 
-     		\textbf{Implementation} & \textbf{Insert} & \textbf{Lookup} \\
-     		\hline
-     		Hash Table & O(N) & O($\frac{N}{C}$) \\ 
-     		\hline 
-     		Unsorted Array & O(N) & O(N)\\ 
-     		\hline 
-     		Sorted Array & O(N log N) & O(log N)\\ 
-     		\hline 
-     	\end{tabular}
-     \end{center}
+	\section{Methodology}
+	The parallel version of the algorithm performs the following steps:
+	\begin{enumerate}
+		\item The input data is read in from the file by process 0. File I/O has been used to read input instead of shell redirection to improve performance 
+		\item Process 0 divides the input equally among the processes and sends the respective chunks to other processes. If input is not divisible exactly, last process would get some additional data items
+		\item Each process receives its chunk of data and stores it in a local array. The length of data is also captured in a variable
+		\item Each process performs a local quick sort on its chunk of data. Quick sort has been implemented as a seperate function in the program for this purpose.
+		\item The merging of data happens in a tree-like fashion as given below for the specific case of 8 processes,
+		
+		\begin{center}
+			\includegraphics[scale=1.0]{3.png}		
+		\end{center}		
+				
+	\end{enumerate}
+    The final sorted data will be available in process 0 and is written to stdout. The above methodology is illustrated in a code snippet in the appendix.
+    
     \begin{verbatim}
+       
     \end{verbatim}
-     The following table shows the emprical results for $N = 10^6$ (Uniform distribution) and $C = 10^4$ (Hash Table). The lookup time is the average for 1000 records. Sorted array took longest time time to insert the records while unsorted array took longest to lookup a key value. Hash table lies in between in terms of both insert and lookup. If capacity (C) is increased for hash table, the lookup time should be less than the sorted array. \\
-     \newline
-	 \begin{center}
-	 	\begin{tabular}{|c|c|c|}
-	 		\hline 
-	 		\textbf{Implementation} & \textbf{Insert (ms)} & \textbf{Lookup (ms)} \\
-	 		\hline
-	 		Hash Table & 437.963 & 4.531 \\ 
-	 		\hline 
-	 		Unsorted Array & 311.291 & 1733 \\ 
-	 		\hline 
-	 		Sorted Array & 611.142 & 0.775 \\ 
-	 		\hline 
-	 	\end{tabular}
-	 \end{center}
-    \begin{verbatim}
-          
-    \end{verbatim}     
-    \subsection{Note on Empirical Analysis}
-    The empirical testing was done on a compute node in the Turing cluster having a 8 core processor clocked at 2.6 GHz and 32GB RAM. Test data was generated using custom scripts available at [4].
-    \subsection{Note on Code}
-    The IDictionary.h file contains the definition of the given interface. The DictImpl.cpp file contains three different implementation of the given interface.  The Runner.cpp contains the driver code for the implementation. The Makefile can be used to generate the Runner.o file.   
-    \subsection{References}
+	
+	
+	\section{Experimental Setup}
+	Experiments were run on multiple compute nodes having 8 core AMD Opteron 3380 processor in the Turing compute cluster. Batch jobs were created in the form of a shell script and executed using PBS. The no. of nodes used varied depending on the no. of processes required for the experiment.\\
+	\newline
+	The time taken to run the parallel sort was measured using C library functions and was printed to stdout along with specified output. Each experiment was repeated 20 times consecutively and then the average was computed for the plots and analysis. \\
+	\newline
+	In each experiment, both sequential and parallel versions of code were executed so as to remove bias from any system load. \\
+	
+	\section{Results}
+	
+	The experimental results are tablulated and plotted below,
+	
+	  \begin{center}
+		\begin{tabular}{|c|c|c|c|}
+			\hline 
+			\textbf{Processes}  & \textbf{Sequential (Avg.) (s)} & \textbf{Parallel (Avg.) (s)} & \textbf{Speedup} \\
+			\hline
+		    8 &  0.0311 & 0.0065 & 4.82\\ 
+			\hline 
+		    16 &  0.0324 & 0.0534 & 0.62\\
+			\hline 
+			32 &  0.0319 & 0.0.0662 & 0.48\\
+			\hline 
+			64 &  0.0330 & 0.1444 & 0.23\\ 
+			\hline 
+			80 &  0.0351 & 0.4512 & 0.08 \\
+			\hline  
+		\end{tabular}
+	\end{center}
+	\begin{verbatim}
+	
+	\end{verbatim}
+	\begin{center}
+		\includegraphics[scale=0.7]{4.png}		
+	\end{center}
+
+     \begin{verbatim}
+             
+     
+     
+     \end{verbatim}
+    \section{Observations}
+    It can be observed that the speedup is maximum for 8 processes which corresponds to 8 cores in a single node and then decreases with increase in process count. \\
+    \newline
+    As the process count is increased, the processes are distributed across multiple nodes. This leads to more delay in data transfer and synchronization due to communication across different nodes through the network. Therefore, the parallel version performs worser than the sequential code for higher process count. \\
+    \newline
+    The speedup is also heavily dependent on the CPU load in the nodes. At the time of experiments, only one node had a very low CPU load and all the other nodes were overutilized with load averages close to 100. This could have contributed to decrease in speedup as well. \\
+       
+    
+    \section{References}
     \begin{list}{}{}
-    	\item 1. https://en.cppreference.com/
+    	\item 1. https://en.cppreference.com/w/c
     	\item 2. DS 221 Course lecture notes
-    	\item 3. https://www.geeksforgeeks.org/
-    	\item 4. /home/shriramr/ds221/part\_3/code/test
-    	\item 5. /home/shriramr/ds221/part\_3/data/
+    	\item 3. http://www.arc.ox.ac.uk/content/how-run-mpi-applications
+    	\item 4. https://www.open-mpi.org/faq/?category=running
+    	\item 5. https://www.open-mpi.org/doc/v2.1/man1/mpiexec.1.php
     \end{list}
+
+    \section{Appendix - Code} 
+    
+    \begin{Verbatim}
+    // Send and Receive Input
+    if (rank == 0) {
+    	for (int i = 1; i < procs; i++) {
+    		if (i < procs - 1)
+    			MPI_Send(arr + i * (SIZE / procs), SIZE / procs, MPI_INT, i, 0, comm);
+    		else
+    			MPI_Send(arr + i * (SIZE / procs), SIZE - i * (SIZE / procs), MPI_INT,
+    																	  i, 0, comm);
+    	}
+    	len = SIZE / procs;
+    } else {
+    	MPI_Recv(arr, SIZE, MPI_INT, 0, 0, comm, &status);
+    	MPI_Get_count(&status, MPI_INT, &len);
+    }
+    
+    // Perform local quick sort
+    qusort(arr, 0, len - 1);
+    
+    
+    
+    
+    
+    
+    // Perform Merge
+    step = 0;
+    while (1 << step < procs) {
+    	if ((rank + 1) % (2 << step) == 1 && rank + (1 << step) < procs) {
+    		MPI_Recv(arr2, SIZE, MPI_INT, rank + (1 << step), step, comm, &status);
+    		MPI_Get_count(&status, MPI_INT, &len2);
+			merge(arr, len, arr2, len2, temp);
+    		p = arr;
+    		arr = temp;
+    		temp = p;
+    		len += len2;
+    	} else if ((rank + 1) % (2 << step) != 1) {
+    		// printf("Send %d %d \n", step, rank);
+    		MPI_Send(arr, len, MPI_INT, rank - (1 << step), step, comm);
+    		break;
+    	}
+    	step++;
+    }
+    
+    MPI_Barrier(comm);
+    
+    \end{Verbatim}
     
 \end{document}
