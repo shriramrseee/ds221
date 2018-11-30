@@ -2,7 +2,6 @@ CC=gcc
 MPICC=mpicc
 
 size=100000
-procs=4
 
 all: seq par
 

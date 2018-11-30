@@ -70,6 +70,7 @@ int main(int argc, char **argv) {
     int rank, procs, len, len2, step;
     long start, end;
     struct timeval timecheck;
+    FILE *fptr;
 
     MPI_Comm comm = MPI_COMM_WORLD;
     MPI_Status status;
@@ -86,9 +87,11 @@ int main(int argc, char **argv) {
 
     // Read Input
     if (rank == 0) {
+        fptr = fopen(argv[1], "r");
         for (int i = 0; i < SIZE; i++) {
-            scanf("%d", &arr[i]);
+            fscanf(fptr, "%d", &arr[i]);
         }
+        fclose(fptr);
     }
    
     gettimeofday(&timecheck, NULL);
@@ -114,8 +117,9 @@ int main(int argc, char **argv) {
 
     // Perform Merge
     step = 0;
-    while (2 << step <= procs) {
+    while (1 << step < procs) {
         if ((rank + 1) % (2 << step) == 1 && rank + (1 << step) < procs) {
+            // printf("Receive %d %d \n", step, rank);
             MPI_Recv(arr2, SIZE, MPI_INT, rank + (1 << step), step, comm, &status);
             MPI_Get_count(&status, MPI_INT, &len2);
             merge(arr, len, arr2, len2, temp);
@@ -124,6 +128,7 @@ int main(int argc, char **argv) {
             temp = p;
             len += len2;
         } else if ((rank + 1) % (2 << step) != 1) {
+            // printf("Send %d %d \n", step, rank);
             MPI_Send(arr, len, MPI_INT, rank - (1 << step), step, comm);
             break;
         }
