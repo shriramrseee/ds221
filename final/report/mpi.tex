@@ -57,15 +57,15 @@
 			\hline 
 			\textbf{Processes}  & \textbf{Sequential (Avg.) (s)} & \textbf{Parallel (Avg.) (s)} & \textbf{Speedup} \\
 			\hline
-		    8 &  0.0311 & 0.0065 & 4.82\\ 
+		    8 &  0.0311 & 0.0065 & 4.79\\ 
 			\hline 
-		    16 &  0.0324 & 0.0534 & 0.62\\
+		    16 &  0.0313 & 0.0274 & 1.14\\
 			\hline 
-			32 &  0.0319 & 0.0.0662 & 0.48\\
+			32 &  0.0312 & 0.0370 & 0.84\\
 			\hline 
-			64 &  0.0330 & 0.1444 & 0.23\\ 
+			64 &  0.0315 & 0.2434 & 0.13\\ 
 			\hline 
-			80 &  0.0351 & 0.4512 & 0.08 \\
+			80 &  0.0311 & 0.4567 & 0.07 \\
 			\hline  
 		\end{tabular}
 	\end{center}
@@ -86,7 +86,7 @@
     \newline
     As the process count is increased, the processes are distributed across multiple nodes. This leads to more delay in data transfer and synchronization due to communication across different nodes through the network. Therefore, the parallel version performs worser than the sequential code for higher process count. \\
     \newline
-    The speedup is also heavily dependent on the CPU load in the nodes. At the time of experiments, only one node had a very low CPU load and all the other nodes were overutilized with load averages close to 100. This could have contributed to decrease in speedup as well. \\
+    The speedup is also heavily dependent on the CPU load in the nodes. At the time of experiments, only few nodes had a very low CPU load and all the other nodes were overutilized with high load averages close to 30. This could have contributed to decrease in speedup as well. \\
        
     
     \section{References}
@@ -146,5 +146,9 @@
     MPI_Barrier(comm);
     
     \end{Verbatim}
+    
+    \begin{center}
+    	---------------------End of Report-----------------------
+    \end{center}
     
 \end{document}
