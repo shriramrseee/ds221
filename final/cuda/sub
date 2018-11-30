@@ -1,0 +1,6 @@
+# !/bin/sh
+#PBS -N myjob
+
+cd /home/shriramr
+./par < reduce_data.txt
+
