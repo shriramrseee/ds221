@@ -57,7 +57,7 @@ int main()
             }
 
             // Assign Labels for all points
-            #pragma omp for schedule(static, chunk)
+            #pragma omp for schedule(SCHEDULE, CHUNKSIZE)
             for (int j = 0; j < SIZE; j++)
             {
                 min_dist = FLT_MAX;                

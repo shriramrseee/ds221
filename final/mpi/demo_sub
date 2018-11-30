@@ -7,4 +7,4 @@
 cd /home/shriramr/ds221/final/mpi
 
 
-./exp.sh 80
+./demo.sh 8

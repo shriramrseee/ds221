@@ -6,4 +6,4 @@
 
 cd /home/shriramr/ds221/final/openmp
 
-./exp.sh
+./demo.sh
